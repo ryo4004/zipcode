@@ -3,7 +3,7 @@ const path = require('path')
 const NeDB = require('nedb')
 
 const zipDB = new NeDB({
-  filename: path.join(__dirname, './database.db'),
+  filename: path.join(__dirname, './databae/database.db'),
   autoload: true
 })
 
