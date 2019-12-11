@@ -2,10 +2,6 @@ const fs = require('fs')
 const path = require('path')
 const NeDB = require('nedb')
 
-// const tempDB = new NeDB({
-//   filename: path.join(__dirname, './temp.db'),
-//   autoload: true
-// })
 
 const directory = '20190830'
 
@@ -13,7 +9,7 @@ const zipCSV = fs.readFileSync('./' + directory + '/KEN_ALL.CSV', 'utf-8')
 
 const zipline = zipCSV.split('\n')
 
-const rem = (text) => text.slice(0,-1).slice(1)
+const rem = (text) => text.slice(0, -1).slice(1)
 
 const dbObject = {}
 
@@ -28,6 +24,19 @@ const setItem = (id, item) => {
   return new Promise((resolve, reject) => {
     const db = createDB(id)
     db.insert(item, () => {
+      resolve()
+    })
+  })
+}
+
+const exceptDB = new NeDB({
+  filename: path.join(__dirname, '/database/' + directory + '/except.db'),
+  autoload: true
+})
+
+const setExceptItem = (except) => {
+  return new Promise((resolve, reject) => {
+    exceptDB.insert(except, () => {
       resolve()
     })
   })
@@ -93,9 +102,7 @@ const make = async () => {
   
       if (address !== '') {
         const item = {zip: zipCode, address}
-        await setItem(zipCode.slice(0,-4), item)
-        // 160066.017ms
-        // 195669.770ms
+        await setItem(zipCode.slice(0, -4), item)
       } else {
         // console.log(rem(list[2]), rem(list[6]), rem(list[7]), rem(list[8]))
         console.log('error')
@@ -104,6 +111,7 @@ const make = async () => {
     } else {
       count++
       count2++
+      await setExceptItem({zip: zipCode, address: rem(list[6]) + rem(list[7]) + rem(list[8])})
     }
 
     if (i % 1000 === 0) {
